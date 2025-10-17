@@ -1,6 +1,5 @@
 import Parser from '../parser';
 import { CharacterAI, CheckAndThrow } from "../client";
-import { CAIImage as CAIImage } from '../utils/image';
 import ObjectPatcher from '../utils/patcher';
 import { getterProperty, hiddenProperty } from '../utils/specable';
 import { CAIVoice } from '../voice';
@@ -34,10 +33,6 @@ export class PublicProfile {
     @getterProperty
     public get followersCount() { return this.num_followers; }
     public set followersCount(value) { this.num_followers = value; }
-
-    // avatar_file_name
-    @hiddenProperty
-    public avatar: CAIImage;
 
     // subscription_type
     public subscriptionType: string = "";
@@ -138,7 +133,6 @@ export class PublicProfile {
     }
     
     constructor(client: CharacterAI, options?: any) {
-        this.avatar = new CAIImage(client, false);
         this.client = client;
         this.loadFromInformation(options);
     }

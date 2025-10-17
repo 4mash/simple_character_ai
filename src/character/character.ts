@@ -4,7 +4,6 @@ import { CharacterAI, CheckAndThrow } from "../client";
 import Parser from "../parser";
 import { PrivateProfile } from "../profile/privateProfile";
 import { PublicProfile } from "../profile/publicProfile";
-import { CAIImage as CAIImage } from "../utils/image";
 import ObjectPatcher from "../utils/patcher";
 import { getterProperty, hiddenProperty, Specable } from "../utils/specable";
 import { v4 as uuidv4 } from 'uuid';
@@ -64,10 +63,6 @@ export class Character extends Specable {
 
     // greeting
     public greeting = "";
-
-    // avatar_file_name
-    @hiddenProperty
-    public avatar: CAIImage;
 
     // songs (no type found)
     public songs: any[] = [];
@@ -404,9 +399,6 @@ export class Character extends Specable {
         this.client.checkAndThrow(CheckAndThrow.RequiresAuthentication);
         this.client.throwBecauseNotAvailableYet(WEIRD_INTERNAL_SERVER_ERROR);
 
-        const image = this.avatar;
-        const prompt = image?.prompt;
-
         let voiceId = options?.voiceOrId ?? "";
         if (options?.voiceOrId instanceof CAIVoice)
             voiceId = options.voiceOrId.id;
@@ -424,7 +416,7 @@ export class Character extends Specable {
                 description: options?.newDescription ?? this.description,
                 greeting: options?.newGreeting ?? this.greeting,
                 definition: options?.newDefinition ?? this.definition,
-                avatar_rel_path: image?.endpointUrl ?? this.avatar.endpointUrl,
+                avatar_rel_path: '',
                 img_gen_enabled: prompt != undefined,
                 dynamic_greeting_enabled: options?.enableDynamicGreeting ?? this.dynamicGreetingEnabled,
                 base_img_prompt: prompt ?? '',
@@ -457,12 +449,6 @@ export class Character extends Specable {
         super();
         this.client = client;
         
-        // can edit profile picture
-        this.avatar = new CAIImage(client, () => 
-            this.creator_id != this.client.myProfile.userId &&
-            this.user__username != this.client.myProfile.username
-        );
-
         ObjectPatcher.patch(this.client, this, information);
     }
 }

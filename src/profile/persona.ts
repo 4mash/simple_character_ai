@@ -1,13 +1,11 @@
 import { CharacterAI, CheckAndThrow } from "../client";
 import Parser from "../parser";
-import { CAIImage } from "../utils/image";
 import ObjectPatcher from "../utils/patcher";
 import { getterProperty, hiddenProperty, Specable } from "../utils/specable";
 
 export interface IPersonaEditOptions {
     name?: string, 
-    definition?: string,
-    image?: CAIImage
+    definition?: string
 }
 
 export class Persona extends Specable {
@@ -50,10 +48,6 @@ export class Persona extends Specable {
 
     @hiddenProperty
     private identifier = "";
-
-    // avatar_file_name
-    @hiddenProperty
-    public avatar: CAIImage;
 
     // songs
     @hiddenProperty
@@ -142,9 +136,6 @@ export class Persona extends Specable {
         this.client.checkAndThrow(CheckAndThrow.RequiresAuthentication);
 
         let { external_id, title, greeting, description, definition, visibility, copyable, default_voice_id, is_persona } = this;
-
-        const image = options.image;
-        const prompt = image?.prompt;
         
         const name = options.name ?? this.participantName;
         const userId = this.user__id ?? 1;
@@ -167,11 +158,11 @@ export class Persona extends Specable {
                 participantnum_interactions: 0,
                 userid: userId,
                 userusername: this.authorUsername,
-                img_gen_enabled: prompt != undefined,
+                img_gen_enabled: false,
                 default_voice_id,
                 is_persona,
                 name,
-                avatar_rel_path: image?.endpointUrl ?? '',
+                avatar_rel_path: '',
                 enabled: true
             }),
             includeAuthorization: true
@@ -188,7 +179,6 @@ export class Persona extends Specable {
 
     constructor(client: CharacterAI, information: any) {
         super();
-        this.avatar = new CAIImage(client, false);
         this.client = client;
         ObjectPatcher.patch(client, this, information);
     }

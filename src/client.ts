@@ -8,7 +8,6 @@ import { Character } from './character/character';
 import { v4 as uuidv4 } from 'uuid';
 import { GroupChats } from './groupchat/groupChats';
 import { RecentCharacter } from './character/recentCharacter';
-import { CAICall, ICharacterCallOptions } from './character/call';
 import { CAIVoice } from './voice';
 import { GroupChatConversation } from './groupchat/groupChatConversation';
 import { CharacterTags, SearchCharacter } from './character/searchCharacter';
@@ -109,20 +108,6 @@ export class CharacterAI {
     private closeWebsockets() {
         this.dmChatWebsocket?.close();
         this.groupChatWebsocket?.close();
-    }
-    
-    public currentCall?: CAICall = undefined;
-    async connectToCall(call: CAICall, options: ICharacterCallOptions): Promise<CAICall> {
-        this.checkAndThrow(CheckAndThrow.RequiresToNotBeInCall);
-
-        this.currentCall = call;
-        await call.connectToSession(options, this.token, this.myProfile.username);
-
-        return call;
-    }
-    async disconnectFromCall() {
-        this.checkAndThrow(CheckAndThrow.RequiresToBeInCall);
-        return await this.currentCall?.hangUp();
     }
 
     // profile fetching
@@ -492,8 +477,6 @@ WARNING: CharacterAI has changed its authentication methods again.
 
     unauthenticate() {
         this.checkAndThrow(CheckAndThrow.RequiresAuthentication);
-
-        this.disconnectFromCall();
         this.closeWebsockets();
         
         this.token = "";
@@ -521,12 +504,6 @@ WARNING: CharacterAI has changed its authentication methods again.
 
         if (argument == CheckAndThrow.RequiresNoAuthentication && this.authenticated) 
             throw Error("Already authenticated");
-        
-        if (argument == CheckAndThrow.RequiresToNotBeInCall && this.currentCall)
-            throw Error("You are already in a call. CharacterAI currently limits to 1 call per account.");
-
-        if (argument == CheckAndThrow.RequiresToBeInCall && !this.currentCall)
-            throw Error("You need to be in a call.");
     }
     
     constructor() {

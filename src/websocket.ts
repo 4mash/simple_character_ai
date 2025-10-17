@@ -82,29 +82,13 @@ export class CAIWebsocket extends EventEmitter {
             });
         });
     }
+    
     async sendAsync(options: ICAIWebsocketMessage): Promise<string | any> {
         return new Promise(resolve => {
             let streamedMessage: any[] | undefined = options.streaming ? [] : undefined;
             let turn: any;
-
-            this.on("rawMessage", async function handler(this: CAIWebsocket, message: string | any) {
-                if (options.parseJSON)
-                    message = await Parser.parseJSON(message, false);
-                else {
-                    this.off("rawMessage", handler);
-                    resolve(message);
-                    return;
-                }
-
-                const disconnectHandlerAndResolve = () => {
-                    this.websocket?.removeListener("rawMessage", handler);
-                    resolve(options.streaming ? streamedMessage?.concat(message) : message);
-                }
-
-                // the way it works is you have an accumulation of packets tied to your request id
-                // the returnal will only happen if you wait for turn
-                // turns will allow you to know the end for streaming (is final)
-                // ws requests are turn based
+            const handler = async (message: string | any) => {
+                if (options.parseJSON) message = await Parser.parseJSON(message, false);
                 const { request_id: requestId, command } = message;
                 const { expectedReturnCommand } = options;
 
@@ -128,14 +112,17 @@ export class CAIWebsocket extends EventEmitter {
                     const condition = options.waitForAIResponse ? !turn?.author?.is_human && isFinal : isFinal;
                     
                     // if expectedReturnCommand or condition is met
-                    if ((expectedReturnCommand && command == expectedReturnCommand) || condition)
-                        disconnectHandlerAndResolve();
+                    if ((expectedReturnCommand && command == expectedReturnCommand) || condition) {
+                        this.off("rawMessage", handler);
+                        resolve(options.streaming ? streamedMessage?.concat(message) : message);
+                    }
                 }
-            });
-            
+            }
+            this.on("rawMessage", handler);
             this.websocket?.send(options.data);
-        })
+        });
     }
+
     close() {
         this.removeAllListeners();
         this.websocket?.removeAllListeners();

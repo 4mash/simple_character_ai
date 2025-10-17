@@ -5,9 +5,6 @@ export * from "./voice";
 // warnings
 export * from './warnings';
 
-// /utils
-export * from './utils/image';
-
 // /profile
 export * from "./profile/persona";
 export * from "./profile/privateProfile";
@@ -25,8 +22,6 @@ export * from './chat/message';
 export * from './chat/previewDMConversation';
 
 // /character
-export * from './character/audioInterface';
-export * from './character/call';
 export * from './character/character';
 export * from './character/characterEnums';
 export * from './character/recentCharacter';

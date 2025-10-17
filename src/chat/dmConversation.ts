@@ -1,4 +1,3 @@
-import { CAICall, ICharacterCallOptions } from "../character/call";
 import { CheckAndThrow } from "../client";
 import Parser from "../parser";
 import Warnings from "../warnings";
@@ -132,12 +131,6 @@ export default class DMConversation extends Conversation {
         if (!request.ok) throw new Error(response);
     }
 
-    async call(options: ICharacterCallOptions): Promise<CAICall> {
-        // oh boy im hyped for this
-        const call = new CAICall(this.client, this);
-        return await this.client.connectToCall(call, options);
-    }
-
     async sendMessage(content: string, options?: ICAIMessageSending): Promise<CAIMessage> {
         this.client.checkAndThrow(CheckAndThrow.RequiresAuthentication);
 
@@ -157,7 +150,7 @@ export default class DMConversation extends Conversation {
                 uuidv4(),
                 this.chatId,
                 this.client.myProfile.userId,
-                options?.image?.endpointUrl ?? ""
+                ""
             )
         });
         

@@ -1,4 +1,3 @@
-import { CAIImage } from "../utils/image";
 import { CAIVoice } from "../voice";
 
 export enum CharacterVote {
@@ -22,8 +21,7 @@ export interface ICharacterCreationExtraOptions {
 
     allowDynamicGreeting?: boolean,
 
-    voiceOrId?: CAIVoice | string,
-    avatar?: CAIImage
+    voiceOrId?: CAIVoice | string
 }
 
 export interface ICharacterModificationOptions {

@@ -1,6 +1,5 @@
 import { CharacterAI, CheckAndThrow } from "../client";
 import Parser from "../parser";
-import { CAIImage } from "../utils/image";
 import { PublicProfile } from "./publicProfile";
 import { getterProperty, hiddenProperty } from "../utils/specable";
 import { Character, CharacterVisibility } from "../character/character";
@@ -28,8 +27,6 @@ export interface IProfileModification {
 
 export class PrivateProfile extends PublicProfile {
     public characters: Character[] = [];
-    @hiddenProperty
-    public avatar: CAIImage;
 
     // is_human
     @hiddenProperty
@@ -91,7 +88,7 @@ export class PrivateProfile extends PublicProfile {
                 username: options?.username ?? this.username,
                 name: options?.displayName ?? this.displayName,
                 avatar_type: "UPLOADED",
-                avatar_rel_path: options?.editAvatar ?? this.avatar.endpointUrl,
+                avatar_rel_path: options?.editAvatar,
                 bio: options?.bio ?? this.bio
             }),
             contentType: 'application/json'
@@ -111,9 +108,6 @@ export class PrivateProfile extends PublicProfile {
     ): Promise<Character> {
         this.client.checkAndThrow(CheckAndThrow.RequiresAuthentication);
 
-        const image = options?.avatar;
-        const prompt = image?.prompt;
-
         let voiceId = options?.voiceOrId ?? "";
         if (options?.voiceOrId instanceof CAIVoice)
             voiceId = options.voiceOrId.id;
@@ -132,7 +126,7 @@ export class PrivateProfile extends PublicProfile {
                 description: options?.description ?? "",
                 greeting,
                 definition: options?.definition ?? "",
-                avatar_rel_path: image?.endpointUrl ?? '',
+                avatar_rel_path: '',
                 img_gen_enabled: prompt != undefined,
                 base_img_prompt: prompt ?? '',
                 strip_img_prompt_from_msg: false,
@@ -235,12 +229,10 @@ export class PrivateProfile extends PublicProfile {
     async createPersona(
         name: string, 
         definition: string,
-        makeDefaultForChats: boolean,
-        image?: CAIImage
+        makeDefaultForChats: boolean
     ) {
         this.client.checkAndThrow(CheckAndThrow.RequiresAuthentication);
 
-        const prompt = image?.prompt;
         const request = await this.client.requester.request(`https://plus.character.ai/chat/persona/create/`, {
             method: 'POST',
             contentType: 'application/json',
@@ -254,7 +246,7 @@ export class PrivateProfile extends PublicProfile {
                 description: "This is my persona.",
                 definition,
                 greeting: "Hello! This is my persona",
-                avatar_rel_path: image?.endpointUrl ?? '',
+                avatar_rel_path: '',
                 img_gen_enabled: prompt != undefined,
                 base_img_prompt: prompt ?? '',
                 avatar_file_name: '',
@@ -299,6 +291,5 @@ export class PrivateProfile extends PublicProfile {
 
     constructor(client: CharacterAI) {
         super(client);
-        this.avatar = new CAIImage(client);
     }
 }

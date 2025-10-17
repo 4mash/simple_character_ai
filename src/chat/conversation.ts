@@ -1,7 +1,6 @@
 import { getterProperty, hiddenProperty, Specable } from "../utils/specable";
 import { CharacterAI, CheckAndThrow } from "../client";
 import Parser from "../parser";
-import { CAIImage } from "../utils/image";
 import ObjectPatcher from "../utils/patcher";
 import Warnings from "../warnings";
 import { CAIMessage } from "./message";
@@ -22,7 +21,6 @@ export enum ConversationVisibility {
 
 export interface ICAIMessageSending {
     manualTurn: boolean,
-    image?: CAIImage,
     getMyMessageInstead: boolean
 };
 
